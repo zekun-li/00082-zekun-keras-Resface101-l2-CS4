@@ -2,21 +2,24 @@ import sys
 import os
 sys.path.insert(0, '/nfs/isicvlnas01/users/iacopo/codes/Aug_Layer_v2/')
 os.environ['KERAS_BACKEND'] = 'tensorflow' 
-os.environ['CUDA_VISIBLE_DEVICES'] = '1,2,3,4' 
+os.environ['CUDA_VISIBLE_DEVICES'] = '0,1,2,3' 
 from face_aug_datagen_prefetch_mp_queue import  FaceAugDataGen
 import keras
 from keras.optimizers import SGD
 from keras.utils import multi_gpu_model
 from resnet101 import ResNet101
 from keras.callbacks import ModelCheckpoint,CSVLogger
+from keras.callbacks import Callback
 import tensorflow as tf
+import numpy as np
 
 ######### params #############
 mean_img_file = 'model/keras_mean_img.npy' 
 nb_classes = 62955
 nb_gpus = 4
 b_size = 64
-saved_weights = 'weights/0/best-13-9.92.hdf5'
+saved_weights = 'weights/2/30-6.57.hdf5'
+#1/best-13-9.92.hdf5'
 
 csv_logger = CSVLogger('logs/multi_train.log')     
 model_save_path = 'weights/multi-{epoch:02d}-{val_loss:.2f}.hdf5' 
@@ -30,7 +33,7 @@ class MultiGPUCheckpointCallback(Callback):
     def __init__(self, filepath, base_model, monitor='val_loss', verbose=0,
                  save_best_only=False, save_weights_only=False,
                  mode='auto', period=1):
-        super(MultiGPU_Checkpoint_Callback, self).__init__()
+        super(MultiGPUCheckpointCallback, self).__init__()
         self.base_model = base_model
         self.monitor = monitor
         self.verbose = verbose
@@ -108,7 +111,7 @@ if saved_weights is not None:
 
 multi_model = multi_gpu_model(model, gpus = nb_gpus)
 sgd = SGD(lr=0.001, decay=0.0, momentum=0.9, nesterov=False)
-multi_model.compile(optimizer = sgd, loss = 'categorical_crossentropy', metrics = ['accuracy']) ############# PARAMS NOT FINALIZED#####
+multi_model.compile(optimizer = sgd, loss = 'sparse_categorical_crossentropy', metrics = ['accuracy']) ############# PARAMS NOT FINALIZED#####
 
 
 # generators
@@ -116,11 +119,11 @@ train_datagen = FaceAugDataGen(mode = 'training', batch_size=b_size ,im_shape = 
 val_datagen = FaceAugDataGen(mode = 'validation', batch_size=b_size ,im_shape = (224,224), n_classes = nb_classes, source = '/lfs2/tmp/anh-train/', mean_file = mean_img_file )
 
 # callbacks
-check_point = MultiGPUCheckpointCallback(file_path = model_save_path,base_model = model,  save_best_only=False,period = 10)   
-check_point_best = MultiGPUCheckpointCallback(file_path = model_save_best, base_model = model, save_best_only=True)
+check_point = MultiGPUCheckpointCallback(filepath = model_save_path,base_model = model,  save_best_only=False,period = 10)   
+check_point_best = MultiGPUCheckpointCallback(filepath = model_save_best, base_model = model, save_best_only=True)
 
 
 #H = model.fit_generator(generator = train_datagen, steps_per_epoch = 1000, epochs = 600, validation_data = val_datagen, validation_steps = 1000, callbacks =[csv_logger, check_point, check_point_best]  , workers = 8, use_multiprocessing=True)
-H = multi_model.fit_generator(generator = train_datagen, steps_per_epoch = 1000, epochs = 600, validation_data = val_datagen, validation_steps = 1000 //nb_gpus, callbacks =[csv_logger, check_point, check_point_best])
+H = multi_model.fit_generator(generator = train_datagen, steps_per_epoch = 1000, epochs = 600, validation_data = val_datagen, validation_steps = 1000, callbacks =[csv_logger, check_point, check_point_best])
 import numpy as np
 np.save('logs/h1.npy',H)

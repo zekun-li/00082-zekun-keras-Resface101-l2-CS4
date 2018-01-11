@@ -2,8 +2,9 @@ import sys
 import os
 sys.path.insert(0, '/nfs/isicvlnas01/users/iacopo/codes/Aug_Layer_v2/')
 os.environ['KERAS_BACKEND'] = 'tensorflow' 
-os.environ['CUDA_VISIBLE_DEVICES'] = '2' 
-from face_aug_datagen_prefetch_mp_queue import  FaceAugDataGen
+os.environ['CUDA_VISIBLE_DEVICES'] = '1' 
+#from face_aug_datagen_prefetch_mp_queue import  FaceAugDataGen
+from debug_face_aug_datagen_prefetch_mp_queue import  FaceAugDataGen
 import keras
 from keras.optimizers import SGD
 from resnet101 import ResNet101
@@ -23,7 +24,7 @@ run_options = tf.RunOptions(trace_level = tf.RunOptions.FULL_TRACE)
 run_metadata = tf.RunMetadata()
 model = ResNet101(include_top=True, l2_norm = True, scale_param = 100, weights=None, classes = nb_classes) #weights=None for random initialization
 sgd = SGD(lr=0.001, decay=0.0, momentum=0.9, nesterov=False)
-model.compile(optimizer = sgd, loss = 'categorical_crossentropy', metrics = ['accuracy'],  options=run_options, run_metadata=run_metadata) ############# PARAMS NOT FINALIZED#####
+model.compile(optimizer = sgd, loss = 'sparse_categorical_crossentropy', metrics = ['accuracy'],  options=run_options, run_metadata=run_metadata) ############# PARAMS NOT FINALIZED#####
 
 
 # load weights

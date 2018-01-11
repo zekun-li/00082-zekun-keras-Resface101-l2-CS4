@@ -127,8 +127,8 @@ class FaceAugDataGen( object ):
         X = np.array(X)
         Y = np.array(Y)
         #Y = sparsify(Y)
-        from keras.utils import to_categorical
-        Y = to_categorical(Y, num_classes = self.n_classes)
+        #from keras.utils import to_categorical
+        #Y = to_categorical(Y, num_classes = self.n_classes)
         #end = time.time()
         #print batch_idx, end-start
         return X,Y
