@@ -24,7 +24,7 @@ import time
 ## Ugly global variables #######################
 #_firstTimeTrain = True
 #_firstTimeValid = True
-_QSIZE = 10 #350
+_QSIZE = 1 #350
 _nJobs = 1 #8
 # _eventTrainList = [None]*(_nJobs+1)
 # _eventValidList = [None]*(_nJobs+1)
@@ -467,9 +467,21 @@ class BatchLoader(Process):
                     prj_matrix = np.asmatrix(prj_matrix)
                     aug_im = self.aug_tr.augment_fast(aug_type=aug_type,img=im,prj_matrix=prj_matrix,flipON=flipON)
                 try:
-                    aug_im = cv2.resize(aug_im, ( self.im_shape[0], self.im_shape[1] ),\
-                                          interpolation=cv2.INTER_LINEAR )
-                    batch_img = self.transformer.preprocess(aug_im)
+                    desired_size = self.im_shape[0]
+                    old_size = aug_im.shape[:2]
+                    ratio = desired_size * 1.0 / max(old_size)
+                    new_size = tuple([int(x * ratio ) for x in old_size])
+                    aug_im = cv2.resize(aug_im, (new_size[1], new_size[0]), interpolation = cv2.INTER_LINEAR)
+                    delta_w = desired_size -new_size[1]
+                    delta_h = desired_size - new_size[0]
+                    top,bottom = delta_h // 2, delta_h - (delta_h //2 )
+                    left, right = delta_w //2, delta_w - (delta_w //2 )
+                    color = [0,0,0] # padding color
+                    aug_im1 = cv2.copyMakeBorder(aug_im, top, bottom, left, right, cv2.BORDER_CONSTANT, value = color)
+
+                    #aug_im = cv2.resize(aug_im, ( self.im_shape[0], self.im_shape[1] ),\
+                    #                      interpolation=cv2.INTER_LINEAR )
+                    batch_img = self.transformer.preprocess(aug_im1)
                 except Exception as ex:
                     util.myprint("Warning: Was not able to use aug_img because: " + str(ex))
                     util.myprint( "Skipping the image: " + image_file_name)
