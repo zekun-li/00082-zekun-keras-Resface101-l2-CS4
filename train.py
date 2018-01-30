@@ -17,8 +17,10 @@ import numpy as np
 mean_img_file = 'model/keras_mean_img.npy' 
 nb_classes = 62955
 nb_gpus = 4
-b_size = 64
-saved_weights = 'weights/2/30-6.57.hdf5'
+b_size = 128
+saved_weights ='weights/4/multi-best-12-3.29.hdf5'
+lr_rate = 0.001 
+#'weights/3/multi-50-4.66.hdf5'
 #1/best-13-9.92.hdf5'
 
 csv_logger = CSVLogger('logs/multi_train.log')     
@@ -110,7 +112,7 @@ if saved_weights is not None:
 
 
 multi_model = multi_gpu_model(model, gpus = nb_gpus)
-sgd = SGD(lr=0.001, decay=0.0, momentum=0.9, nesterov=False)
+sgd = SGD(lr=lr_rate, decay=0.0, momentum=0.9, nesterov=False)
 multi_model.compile(optimizer = sgd, loss = 'sparse_categorical_crossentropy', metrics = ['accuracy']) ############# PARAMS NOT FINALIZED#####
 
 

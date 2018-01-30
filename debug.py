@@ -26,6 +26,6 @@ val_datagen = FaceAugDataGen(mode = 'validation', batch_size=16,im_shape = (224,
 import numpy as np
 import cv2
 mean_img = np.load('model/keras_mean_img.npy')
-for j in range(20):
-    for i in range(val_datagen[j][0].shape[0]): cv2.imwrite('keepratio_'+str(j) + '_'+str(i)+'.jpg',(val_datagen[j][0][i] + mean_img).transpose(1,2,0))
+for j in range(2):
+    for i in range(val_datagen[j][0].shape[0]): cv2.imwrite('new_keepratio_'+str(j) + '_'+str(i)+'.jpg',(val_datagen[j][0][i] + mean_img).transpose(1,2,0))
 print 'done'

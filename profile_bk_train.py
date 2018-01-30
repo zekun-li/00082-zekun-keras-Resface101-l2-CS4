@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.insert(0, '/nfs/isicvlnas01/users/iacopo/codes/Aug_Layer_v2/')
 os.environ['KERAS_BACKEND'] = 'tensorflow' 
-os.environ['CUDA_VISIBLE_DEVICES'] = '1' 
+os.environ['CUDA_VISIBLE_DEVICES'] = '4' 
 #from face_aug_datagen_prefetch_mp_queue import  FaceAugDataGen
 from debug_face_aug_datagen_prefetch_mp_queue import  FaceAugDataGen
 import keras
@@ -17,7 +17,8 @@ mean_img_file = 'model/keras_mean_img.npy'
 nb_classes = 62955
 #saved_weights = 'weights/0/best-13-9.92.hdf5'
 b_size= 32
-saved_weights = 'weights/1/10-9.52.hdf5'
+#saved_weights = 'weights/1/10-9.52.hdf5'
+saved_weights = 'weights/multi-best-02-6.51.hdf5'
 #####################################
 
 run_options = tf.RunOptions(trace_level = tf.RunOptions.FULL_TRACE)
